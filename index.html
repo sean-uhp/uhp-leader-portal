@@ -135,18 +135,15 @@
 
       try {
         const res = await fetch('https://script.google.com/macros/s/AKfycby9nLs7-PwZbMazjpZ1kvE3_yepMXHm32yORF-JjbV2hBX1NfRfJTcaJv0eKmvFTufg/exec', {
-  method: 'POST',
-  mode: 'cors',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ clientName })
-});
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify({ clientName })
+        });
 
-        const result = await res.json();
-        responseMsg.textContent = result.status === "success"
-          ? `✅ ${result.message}`
-          : `⚠️ ${result.message}`;
+        const text = await res.text();
+        responseMsg.textContent = `✅ ${text}`;
       } catch (error) {
         responseMsg.textContent = `⚠️ Error: ${error.message}`;
       }
