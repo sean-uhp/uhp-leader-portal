@@ -90,7 +90,7 @@
     }
 
     async function fetchClientData() {
-      const sheetUrl = "https://opensheet.elk.sh/1gBJ0fRBpIX2rMsGzlw1qjKy7FEmsTS2JYkzUvPO-8t8/Tracker";
+      const sheetUrl = "https://opensheet.elk.sh/18jB5trKqRMOM6sTma7l42j_tD9RG7w5rE0XP0qLI38w/Tracker";
       const table = document.getElementById("client-table");
       try {
         const res = await fetch(sheetUrl);
@@ -99,10 +99,10 @@
         data.reverse().forEach(row => {
           table.innerHTML += `
             <tr>
-              <td class="px-6 py-4">${row["Client Name"]}</td>
-              <td class="px-6 py-4 text-blue-600 hover:underline"><a href="${row["Folder URL"]}" target="_blank">Folder</a></td>
-              <td class="px-6 py-4 text-blue-600 hover:underline"><a href="${row["Coach Dashboard URL"]}" target="_blank">Dashboard</a></td>
-              <td class="px-6 py-4 text-blue-600 hover:underline"><a href="${row["Survey Form URL"]}" target="_blank">Form</a></td>
+              <td class="px-6 py-4">${row["CLIENT NAME"]}</td>
+              <td class="px-6 py-4 text-blue-600 hover:underline"><a href="${row["FOLDER URL"]}" target="_blank">Folder</a></td>
+              <td class="px-6 py-4 text-blue-600 hover:underline"><a href="${row["COACH DASHBOARD URL"]}" target="_blank">Dashboard</a></td>
+              <td class="px-6 py-4 text-blue-600 hover:underline"><a href="${row["SURVEY FORM URL"]}" target="_blank">Form</a></td>
             </tr>`;
         });
       } catch (error) {
