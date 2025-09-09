@@ -123,18 +123,29 @@
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycby9nLs7-PwZbMazjpZ1kvE3_yepMXHm32yORF-JjbV2hBX1NfRfJTcaJv0eKmvFTufg/exec", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ clientName })
         });
 
-        const data = await res.json();
+        const contentType = res.headers.get("content-type") || "";
+        const rawText = await res.text();
+        let data = {};
+
+        if (contentType.includes("application/json")) {
+          data = JSON.parse(rawText);
+        } else {
+          try {
+            data = JSON.parse(rawText);
+          } catch (jsonErr) {
+            responseMsg.textContent = `⚠️ Unexpected response format: ${rawText}`;
+            return;
+          }
+        }
 
         if (data.error) {
           responseMsg.textContent = `❌ Error: ${data.error}`;
         } else {
-          responseMsg.textContent = `✅ ${data.message}`;
+          responseMsg.textContent = `✅ ${data.message || "Client created successfully."}`;
           console.log("📦 Returned Data:", data);
           fetchClientData();
         }
