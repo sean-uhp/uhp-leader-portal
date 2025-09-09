@@ -100,21 +100,15 @@
       const email = responsePayload.email || "";
       const name = responsePayload.name || "User";
 
-      if (email.endsWith("@university-hp.com")) {
-        document.getElementById("g_id_onload").style.display = "none";
-        document.querySelector(".g_id_signin").style.display = "none";
-        document.getElementById("secure-content").style.display = "block";
+      // ✅ Update: Allow ANY Google user
+      document.getElementById("g_id_onload").style.display = "none";
+      document.querySelector(".g_id_signin").style.display = "none";
+      document.getElementById("secure-content").style.display = "block";
 
-        const header = document.createElement("p");
-        header.className = "mt-4 text-green-700 font-semibold";
-        header.textContent = `Welcome ${name} (${email}) – Access granted to the Leadership Portal.`;
-        document.getElementById("portal-content").prepend(header);
-      } else {
-        document.getElementById("portal-content").innerHTML = `
-          <h2 class="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
-          <p>This portal is restricted to university-hp.com users.</p>
-        `;
-      }
+      const header = document.createElement("p");
+      header.className = "mt-4 text-green-700 font-semibold";
+      header.textContent = `Welcome ${name} (${email}) – Access granted to the Leadership Portal.`;
+      document.getElementById("portal-content").prepend(header);
     }
 
     function parseJwt(token) {
@@ -123,6 +117,7 @@
       const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c =>
         '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
       ).join(''));
+
       return JSON.parse(jsonPayload);
     }
 
@@ -138,8 +133,6 @@
         return;
       }
 
-      responseMsg.textContent = '⏳ Creating client folder...';
-
       try {
         const res = await fetch('https://script.google.com/macros/s/AKfycby9nLs7-PwZbMazjpZ1kvE3_yepMXHm32yORF-JjbV2hBX1NfRfJTcaJv0eKmvFTufg/exec', {
           method: 'POST',
@@ -149,10 +142,10 @@
           }
         });
 
-        const text = await res.text();
-        responseMsg.textContent = text.includes("successfully")
-          ? `✅ ${text}`
-          : `⚠️ ${text}`;
+        const result = await res.json();
+        responseMsg.textContent = result.status === "success"
+          ? `✅ ${result.message}`
+          : `⚠️ ${result.message}`;
       } catch (error) {
         responseMsg.textContent = `⚠️ Error: ${error.message}`;
       }
