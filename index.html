@@ -131,15 +131,11 @@
         const rawText = await res.text();
         let data = {};
 
-        if (contentType.includes("application/json")) {
+        try {
           data = JSON.parse(rawText);
-        } else {
-          try {
-            data = JSON.parse(rawText);
-          } catch (jsonErr) {
-            responseMsg.textContent = `⚠️ Unexpected response format: ${rawText}`;
-            return;
-          }
+        } catch (jsonErr) {
+          responseMsg.textContent = `⚠️ Unexpected response format: ${rawText}`;
+          return;
         }
 
         if (data.error) {
