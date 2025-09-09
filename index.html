@@ -114,19 +114,32 @@
       e.preventDefault();
       const clientName = document.getElementById("client-name").value.trim();
       const responseMsg = document.getElementById("form-response");
-      if (!clientName) return responseMsg.textContent = "Please enter a client name.";
+
+      if (!clientName) {
+        responseMsg.textContent = "Please enter a client name.";
+        return;
+      }
 
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycby9nLs7-PwZbMazjpZ1kvE3_yepMXHm32yORF-JjbV2hBX1NfRfJTcaJv0eKmvFTufg/exec", {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({ clientName })
         });
+
         const data = await res.json();
-        responseMsg.textContent = `✅ ${data.message}`;
-        fetchClientData();
+
+        if (data.error) {
+          responseMsg.textContent = `❌ Error: ${data.error}`;
+        } else {
+          responseMsg.textContent = `✅ ${data.message}`;
+          console.log("📦 Returned Data:", data);
+          fetchClientData();
+        }
       } catch (error) {
-        responseMsg.textContent = `⚠️ Error: ${error.message}`;
+        responseMsg.textContent = `⚠️ Network Error: ${error.message}`;
       }
 
       document.getElementById("client-form").reset();
