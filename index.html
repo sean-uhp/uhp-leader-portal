@@ -57,6 +57,28 @@
         </table>
       </div>
 
+      <!-- ✅ CREATE NEW CLIENT FORM -->
+      <div class="bg-white shadow rounded-xl p-4 my-12 w-full max-w-md">
+        <h2 class="text-xl font-semibold mb-2">Create New Client</h2>
+        <form id="client-form" class="space-y-4">
+          <input
+            type="text"
+            id="client-name"
+            placeholder="Enter client name"
+            class="w-full border rounded p-2"
+            required
+          />
+          <button
+            type="submit"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+          >
+            Create Client Folder
+          </button>
+          <p id="form-response" class="text-sm text-gray-600 mt-2"></p>
+        </form>
+      </div>
+
+      <!-- ✅ UHP Calendar -->
       <section class="mt-10">
         <h2 class="text-xl font-semibold mb-4">Upcoming UHP Events</h2>
         <iframe 
@@ -71,7 +93,7 @@
     </div>
   </main>
 
-  <!-- ✅ Auth Logic -->
+  <!-- ✅ Auth + Client Script -->
   <script>
     function handleCredentialResponse(response) {
       const responsePayload = parseJwt(response.credential);
@@ -104,6 +126,38 @@
 
       return JSON.parse(jsonPayload);
     }
+
+    // ✅ Create Client Form Logic
+    const form = document.getElementById('client-form');
+    const responseMsg = document.getElementById('form-response');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const clientName = document.getElementById('client-name').value.trim();
+      if (!clientName) {
+        responseMsg.textContent = 'Please enter a client name.';
+        return;
+      }
+
+      try {
+        const res = await fetch('https://script.google.com/a/macros/university-hp.com/s/AKfycby9nLs7-PwZbMazjpZ1kvE3_yepMXHm32yORF-JjbV2hBX1NfRfJTcaJv0eKmvFTufg/exec', {
+          method: 'POST',
+          body: JSON.stringify({ clientName }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const text = await res.text();
+        responseMsg.textContent = text.includes("successfully")
+          ? `✅ ${text}`
+          : `⚠️ ${text}`;
+      } catch (error) {
+        responseMsg.textContent = `⚠️ Error: ${error.message}`;
+      }
+
+      form.reset();
+    });
   </script>
 </body>
 </html>
