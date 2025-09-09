@@ -135,12 +135,13 @@
 
       try {
         const res = await fetch('https://script.google.com/macros/s/AKfycby9nLs7-PwZbMazjpZ1kvE3_yepMXHm32yORF-JjbV2hBX1NfRfJTcaJv0eKmvFTufg/exec', {
-          method: 'POST',
-          body: JSON.stringify({ clientName }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+  method: 'POST',
+  mode: 'cors',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ clientName })
+});
 
         const result = await res.json();
         responseMsg.textContent = result.status === "success"
