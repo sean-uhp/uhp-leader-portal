@@ -16,6 +16,7 @@
   </header>
 
   <main class="p-6" id="portal-content">
+    <!-- Google Sign-In -->
     <div id="g_id_onload"
          data-client_id="438240481296-n196347a7np1uj83frbl2sfuqf5m2mjt.apps.googleusercontent.com"
          data-context="signin"
@@ -23,7 +24,6 @@
          data-callback="handleCredentialResponse"
          data-auto_prompt="false">
     </div>
-
     <div class="g_id_signin"
          data-type="standard"
          data-size="large"
@@ -33,7 +33,9 @@
          data-logo_alignment="left">
     </div>
 
+    <!-- Secure Content -->
     <div id="secure-content" style="display: none;">
+      <!-- Client Table -->
       <div class="overflow-x-auto mt-10">
         <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
           <thead class="bg-gray-100 text-left text-sm font-semibold text-gray-700">
@@ -44,12 +46,11 @@
               <th class="px-6 py-4">Survey Form</th>
             </tr>
           </thead>
-          <tbody id="client-table" class="text-sm divide-y divide-gray-200">
-            <!-- Dynamic rows will be inserted here -->
-          </tbody>
+          <tbody id="client-table" class="text-sm divide-y divide-gray-200"></tbody>
         </table>
       </div>
 
+      <!-- Create New Client -->
       <div class="bg-white shadow rounded-xl p-4 my-12 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-2">Create New Client</h2>
         <form id="client-form" class="space-y-4">
@@ -61,6 +62,7 @@
         </form>
       </div>
 
+      <!-- Events -->
       <section class="mt-10">
         <h2 class="text-xl font-semibold mb-4">Upcoming UHP Events</h2>
         <iframe 
@@ -72,12 +74,14 @@
   </main>
 
   <script>
+    // Google Sign-In
     function handleCredentialResponse(response) {
       const payload = parseJwt(response.credential);
       document.getElementById("g_id_onload").style.display = "none";
       document.querySelector(".g_id_signin").style.display = "none";
       document.getElementById("secure-content").style.display = "block";
-      document.getElementById("portal-content").insertAdjacentHTML("afterbegin", `<p class='mt-4 text-green-700 font-semibold'>Welcome ${payload.name} (${payload.email}) – Access granted to the Leadership Portal.</p>`);
+      document.getElementById("portal-content").insertAdjacentHTML("afterbegin",
+        `<p class='mt-4 text-green-700 font-semibold'>Welcome ${payload.name} (${payload.email}) – Access granted.</p>`);
       fetchClientData();
     }
 
@@ -89,6 +93,7 @@
       return JSON.parse(jsonPayload);
     }
 
+    // Load client data from Google Sheet
     async function fetchClientData() {
       const sheetUrl = "https://opensheet.elk.sh/18jB5trKqRMOM6sTma7l42j_tD9RG7w5rE0XP0qLI38w/Tracker";
       const table = document.getElementById("client-table");
@@ -100,9 +105,9 @@
           table.innerHTML += `
             <tr>
               <td class="px-6 py-4">${row["CLIENT NAME"] || ""}</td>
-              <td class="px-6 py-4"><a href="${row["FOLDER URL"] || "#"}" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Folder</a></td>
-              <td class="px-6 py-4"><a href="${row["COACH DASHBOARD URL"] || "#"}" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Dashboard</a></td>
-              <td class="px-6 py-4"><a href="${row["SURVEY FORM URL"] || "#"}" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Form</a></td>
+              <td class="px-6 py-4"><a class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700" href="${row["FOLDER URL"]}" target="_blank">Folder</a></td>
+              <td class="px-6 py-4"><a class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700" href="${row["COACH DASHBOARD URL"]}" target="_blank">Dashboard</a></td>
+              <td class="px-6 py-4"><a class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700" href="${row["SURVEY FORM URL"]}" target="_blank">Form</a></td>
             </tr>`;
         });
       } catch (error) {
@@ -110,6 +115,7 @@
       }
     }
 
+    // Create client from portal
     document.getElementById("client-form")?.addEventListener("submit", async e => {
       e.preventDefault();
       const clientName = document.getElementById("client-name").value.trim();
@@ -131,7 +137,7 @@
         let data = {};
         try {
           data = JSON.parse(rawText);
-        } catch {
+        } catch (err) {
           responseMsg.textContent = `⚠️ Unexpected response: ${rawText}`;
           return;
         }
@@ -140,7 +146,6 @@
           responseMsg.textContent = `❌ Error: ${data.error}`;
         } else {
           responseMsg.textContent = `✅ ${data.message || "Client created successfully."}`;
-          console.log("📦 Returned Data:", data);
           fetchClientData();
         }
       } catch (error) {
