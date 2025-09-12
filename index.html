@@ -16,7 +16,6 @@
   </header>
 
   <main class="p-6" id="portal-content">
-    <!-- Google Sign-In -->
     <div id="g_id_onload"
          data-client_id="438240481296-n196347a7np1uj83frbl2sfuqf5m2mjt.apps.googleusercontent.com"
          data-context="signin"
@@ -24,6 +23,7 @@
          data-callback="handleCredentialResponse"
          data-auto_prompt="false">
     </div>
+
     <div class="g_id_signin"
          data-type="standard"
          data-size="large"
@@ -33,38 +33,34 @@
          data-logo_alignment="left">
     </div>
 
-    <!-- Secure Content -->
     <div id="secure-content" style="display: none;">
-      <!-- Client Table -->
       <div class="overflow-x-auto mt-10">
         <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
           <thead class="bg-gray-100 text-left text-sm font-semibold text-gray-700">
             <tr>
               <th class="px-6 py-4">Client Name</th>
-              <th class="px-6 py-4">Folder</th>
+              <th class="px-6 py-4">Folder Link</th>
               <th class="px-6 py-4">Coach Dashboard</th>
               <th class="px-6 py-4">Survey Form</th>
             </tr>
           </thead>
-          <tbody id="client-table" class="text-sm divide-y divide-gray-200"></tbody>
+          <tbody id="client-table" class="text-sm divide-y divide-gray-200">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
         </table>
       </div>
 
-      <!-- Create New Client -->
       <div class="bg-white shadow rounded-xl p-4 my-12 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-2">Create New Client</h2>
         <form id="client-form" class="space-y-4">
-          <input type="text" id="client-name" placeholder="Enter client name"
-                 class="w-full border rounded p-2" required />
-          <button type="submit"
-                  class="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900 w-full">
+          <input type="text" id="client-name" placeholder="Enter client name" class="w-full border rounded p-2" required />
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
             Create Client Folder
           </button>
           <p id="form-response" class="text-sm text-gray-600 mt-2"></p>
         </form>
       </div>
 
-      <!-- UHP Events -->
       <section class="mt-10">
         <h2 class="text-xl font-semibold mb-4">Upcoming UHP Events</h2>
         <iframe 
@@ -76,31 +72,23 @@
   </main>
 
   <script>
-    // --- Google Auth Callback ---
     function handleCredentialResponse(response) {
       const payload = parseJwt(response.credential);
       document.getElementById("g_id_onload").style.display = "none";
       document.querySelector(".g_id_signin").style.display = "none";
       document.getElementById("secure-content").style.display = "block";
-      document.getElementById("portal-content").insertAdjacentHTML(
-        "afterbegin",
-        `<p class='mt-4 text-green-700 font-semibold'>Welcome ${payload.name} (${payload.email}) – Access granted.</p>`
-      );
+      document.getElementById("portal-content").insertAdjacentHTML("afterbegin", `<p class='mt-4 text-green-700 font-semibold'>Welcome ${payload.name} (${payload.email}) – Access granted to the Leadership Portal.</p>`);
       fetchClientData();
     }
 
     function parseJwt(token) {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64).split('').map(c =>
-          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        ).join('')
-      );
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
       return JSON.parse(jsonPayload);
     }
 
-    // --- Fetch Client Data from Sheet ---
     async function fetchClientData() {
       const sheetUrl = "https://opensheet.elk.sh/18jB5trKqRMOM6sTma7l42j_tD9RG7w5rE0XP0qLI38w/Tracker";
       const table = document.getElementById("client-table");
@@ -111,33 +99,26 @@
         data.reverse().forEach(row => {
           table.innerHTML += `
             <tr>
-              <td class="px-6 py-4">${row["Client Name"]}</td>
-              <td class="px-6 py-4">
-                <a href="${row["Folder URL"]}" target="_blank"
-                   class="bg-blue-800 text-white px-3 py-1 rounded hover:bg-blue-900">Folder</a>
-              </td>
-              <td class="px-6 py-4">
-                <a href="${row["Coach Dashboard URL"]}" target="_blank"
-                   class="bg-blue-800 text-white px-3 py-1 rounded hover:bg-blue-900">Dashboard</a>
-              </td>
-              <td class="px-6 py-4">
-                <a href="${row["Survey URL"]}" target="_blank"
-                   class="bg-blue-800 text-white px-3 py-1 rounded hover:bg-blue-900">Survey</a>
-              </td>
+              <td class="px-6 py-4">${row["CLIENT NAME"] || ""}</td>
+              <td class="px-6 py-4"><a href="${row["FOLDER URL"] || "#"}" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Folder</a></td>
+              <td class="px-6 py-4"><a href="${row["COACH DASHBOARD URL"] || "#"}" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Dashboard</a></td>
+              <td class="px-6 py-4"><a href="${row["SURVEY FORM URL"] || "#"}" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Form</a></td>
             </tr>`;
         });
       } catch (error) {
-        console.error("❌ fetchClientData failed:", error);
         table.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-red-600">Failed to load client data.</td></tr>`;
       }
     }
 
-    // --- Create Client Form ---
     document.getElementById("client-form")?.addEventListener("submit", async e => {
       e.preventDefault();
       const clientName = document.getElementById("client-name").value.trim();
       const responseMsg = document.getElementById("form-response");
-      if (!clientName) return responseMsg.textContent = "Please enter a client name.";
+
+      if (!clientName) {
+        responseMsg.textContent = "Please enter a client name.";
+        return;
+      }
 
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycby9nLs7-PwZbMazjpZ1kvE3_yepMXHm32yORF-JjbV2hBX1NfRfJTcaJv0eKmvFTufg/exec", {
@@ -147,9 +128,7 @@
         });
 
         const rawText = await res.text();
-        console.log("🌐 Raw Response:", rawText);
-
-        let data;
+        let data = {};
         try {
           data = JSON.parse(rawText);
         } catch {
@@ -165,7 +144,6 @@
           fetchClientData();
         }
       } catch (error) {
-        console.error("❌ fetch() failed:", error);
         responseMsg.textContent = `⚠️ Network Error: ${error.message}`;
       }
 
